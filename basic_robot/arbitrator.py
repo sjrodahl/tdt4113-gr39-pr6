@@ -1,3 +1,5 @@
+from behaviour import *
+
 class Arbitrator:
     def __init__(self, behaviors):
         self.behaviors = behaviors
