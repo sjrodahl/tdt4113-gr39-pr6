@@ -43,6 +43,11 @@ class Behaviour:
     def calculate_match_degree(self):
         return 0
 
+    def __gt__(self, other):
+        return self.weight > other.weight
+
+
+
 class AvoidWalls(Behaviour):
     # self.sensobs is i single sensob for for ir-proximity sensor
     last_rotate_was_clockwise = True  # To toggle the turndirection in case of no walls detected
