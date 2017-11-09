@@ -28,7 +28,7 @@ class RedandBLue():
                 else:
                     self.put_pixel(x,y)
 
-        self.image.show()
+        #self.image.show()
 
 
     def Array(self):
@@ -48,7 +48,7 @@ class RedandBLue():
             else:
                 self.content.append(None)
 
-        print(self.content)
+        #print(self.content)
     
     def update(self):
         self.image = self.camera.update()

@@ -1,11 +1,11 @@
-from basic_robot.basic_robot.ultrasonic import Ultrasonic()
+from ultrasonic import Ultrasonic
 
 
 class In_Front():
 
     def __init__(self):
-
-        self.Distance = int(round(Ultrasonic.get_value()))
+        self.ultra = Ultrasonic()
+        self.Distance = int(round(ultra.get_value()))
 
     def React(self):
         
@@ -13,3 +13,6 @@ class In_Front():
             return "PICTURE"
         else:
             return None
+    def update(self):
+        self.ultra.update()
+        self.distance= int(round(self.ultra.get_value()))
