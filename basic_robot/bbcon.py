@@ -49,3 +49,7 @@ def main():
     bbcon.add_sensob(cam_sensob)
     while True:
         bbcon.run_one_timestep()
+
+
+if __name__ == "__main__":
+    main()
