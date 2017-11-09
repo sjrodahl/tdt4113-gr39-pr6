@@ -58,3 +58,6 @@ class RedandBLue():
 
     def reset(self):
         self.camera.reset()
+
+    def get_value(self):
+        return self.content

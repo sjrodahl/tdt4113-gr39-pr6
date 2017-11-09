@@ -1,5 +1,5 @@
 
-from basic_robot.irproximity_sensor import IRProximitySensor
+from irproximity_sensor import IRProximitySensor
 
 
 class StayLeft():

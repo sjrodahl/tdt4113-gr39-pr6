@@ -20,4 +20,5 @@ class In_Front():
     def reset(self):
         self.ultra.reset()
 
-
+    def get_value(self):
+        return self.distance
