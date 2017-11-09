@@ -10,9 +10,6 @@ In this section, we specify the different inputs and outputs from the sensobs an
 
 ### Motor recommendations:
 The motor reccomendations being transferred to the motobs is on the following format:
-* (Mode, rotation_degrees, speed)  
-  * Here, Mode is either rotate (DriveMode.ROTATE) or drive (DriveMode.ROTATE). 
+* (Mode, rotation_degrees)  
+  * Here, Mode is either rotate (DriveMode.ROTATE) or drive (DriveMode.DRIVE). 
 Rotation_degrees is positive for counterclockwise rotation and negative for clockwise rotation. It is measured in degrees
-In drive mode, speed is positive for forward driving and negative for reverse.  
-In Rotate mode, speed is a positive number beween 0 and 1.
-The speed is in percent of max-speed and is a number between -1 and 1.  

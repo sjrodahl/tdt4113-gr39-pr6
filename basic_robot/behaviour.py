@@ -74,20 +74,20 @@ class AvoidWalls(Behaviour):
 
         if left_ir and not right_ir:
             #Turn slightly to the right
-            self.motor_recommendations = (DriveMode.DRIVE, -self.rotate_degrees, self.drive_speed)
+            self.motor_recommendations = (DriveMode.DRIVE, -self.ROTATE_DEGREES)
             self.last_rotate_was_clockwise = False
         elif right_ir and not left_ir:
             #Turn slightly to the left
-            self.motor_recommendations = (DriveMode.DRIVE, self.rotate_degrees, self.drive_speed)
+            self.motor_recommendations = (DriveMode.DRIVE, self.ROTATE_DEGREES)
             self.last_rotate_was_clockwise = True
         elif left_ir and right_ir:
             #Continue directly forward we don't know any better
             #Drive at half speed (?)
-            self.motor_recommendations = (DriveMode.DRIVE, 0, self.drive_speed/2)
+            self.motor_recommendations = (DriveMode.DRIVE, 0)
         else:
             #No walls detected. Wiggle from side to side
             rotate_direction = -1 if self.last_rotate_was_clockwise else 1
-            self.motor_recommendations = (DriveMode.DRIVE, rotate_direction * self.rotate_degrees, self.drive_speed)
+            self.motor_recommendations = (DriveMode.DRIVE, rotate_direction * self.ROTATE_DEGREES)
             self.last_rotate_was_clockwise = not self.last_rotate_was_clockwise
 
 
