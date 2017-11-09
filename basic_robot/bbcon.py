@@ -1,8 +1,9 @@
 import time
 from behaviour import *
 from motob import Motob
-from RB import *
-from Tester_Ultra import *
+from sensobs import *
+from arbitrator import Arbitrator
+
 
 
 class Bbcon:
@@ -12,6 +13,7 @@ class Bbcon:
 
     def __init__(self):
         self.motobs = [Motob()]
+        self.arbitator = Arbitrator()
 
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
@@ -35,24 +37,25 @@ class Bbcon:
         (mr, halt_req) = self.arbitrator.choose_action()
         if (halt_req):
             # Terminate run
-            return 0    # TODO: How to terminate run?
+            # TODO: How to terminate run?
+            return True     # Freeze all motor functions
         for m in self.motobs:
             m.update(mr)
         time.sleep(0.5)
         for s in self.sensobs:
             s.reset()
+        return False    # Do not halt
 
 
 def main():
-    camera = Camera()
     bbcon = Bbcon()
-    cam_sensob = RedandBLue(camera)
-    ultra_sensob = In_Front()
-    turnToRed = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
-    bbcon.add_behavior(turnToRed)
-    bbcon.add_sensob(cam_sensob)
-    while True:
-        bbcon.run_one_timestep()
+    cam_sensob = RedandBlueSensob()
+    ultra_sensob = UltrasonicSensob()
+    followRedBehavior = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
+
+    halt = False
+    while not halt:
+        halt = bbcon.run_one_timestep()
 
 
 if __name__ == "__main__":

@@ -1,4 +1,6 @@
 from enum import Enum
+from sensobs import *
+
 
 class DriveMode(Enum):
     DRIVE = 1
@@ -8,13 +10,12 @@ class DriveMode(Enum):
 class Behaviour:
     ROTATE_DEGREES = 10
 
-
     motor_recommendations = None
     halt_request = False
     match_degree = 0
     weight = 0      #priority * match_degree
 
-    def __init__(self, bbcon, sensobs, priority, active_flag):
+    def __init__(self, bbcon, sensobs, priority, active_flag = True):
         self.bbcon = bbcon
         self.sensobs = sensobs
         self.priority = priority
@@ -91,7 +92,7 @@ class AvoidWalls(Behaviour):
 
 
 class FollowRedInIntersection(Behaviour):
-    # Sensobs: The camea sensob looking for red and blue to determine direction
+    # Sensobs: The camera sensob looking for red and blue to determine direction
     # and the ulrasound to determine when to activate.
     LEFT = 1
     RIGHT = -1
