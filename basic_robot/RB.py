@@ -1,10 +1,12 @@
 from PIL import Image
-from basic_robot.basic_robot.camera import Camera
+from camera import Camera
 
 class RedandBLue():
+    
 
-    def __init__(self):
+    def __init__(self, camera):
         #self.image = Image.open("redandblue.jpg")
+        self.camera = camera
         self.image = Camera.get_value()
 
     def get_pixel(self,x,y):
@@ -30,7 +32,7 @@ class RedandBLue():
 
 
     def Array(self):
-        self.Content = []
+        self.content = []
 
         for x in range(self.image.size[0]):
             temp = [0,0]
@@ -40,14 +42,20 @@ class RedandBLue():
 
             if (temp[0] > 2000) or (temp[1] > 2000):
                 if(temp[0] > temp[1]):
-                    self.Content.append("Red")
+                    self.content.append("Red")
                 else:
-                    self.Content.append("Blue")
+                    self.content.append("Blue")
             else:
-                self.Content.append(None)
+                self.content.append(None)
 
-        print(self.Content)
-
+        print(self.content)
+    
+    def update(self):
+        self.image = self.camera.update()
+        self.Converter()
+        self.Array()
+        return self.content
+    
 Hallvard = RedandBLue()
 Hallvard.Converter()
 Hallvard.Array()
