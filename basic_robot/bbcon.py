@@ -1,6 +1,6 @@
 import time
 from behaviour import *
-from motob import *
+from motob import Motob
 from RB import *
 from Tester_Ultra import *
 
@@ -9,10 +9,14 @@ class Bbcon:
     active_behaviors = set()
     sensobs = []
     behaviors = []
-    motobs = [Motob()]
+
+    def __init__(self):
+        self.motobs = [Motob()]
 
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
+        if behavior.active_flag:
+            self.activate_behavior(behavior)
 
     def add_sensob(self, sensob):
         self.sensobs.append(sensob)
