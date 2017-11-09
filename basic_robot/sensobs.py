@@ -4,8 +4,12 @@ from ultrasonic import Ultrasonic
 from irproximity_sensor import IRProximitySensor
 
 
-
 class Sensob():
+
+    def __init__(self, bbcon):
+        self.bbcon = bbcon
+        self.bbcon.add_sensob(self)
+
 
     def update(self):
         pass
@@ -13,15 +17,14 @@ class Sensob():
     def reset(self):
         pass
 
+    def get_value(self):
+        pass
 
 
-class RedandBlue_Sensob(Sensob):
-
-
-    def __init__(self):
-        #self.image = Image.open("redandblue.jpg")
-        self.camera = Camera()
-        self.image = Camera.get_value()
+class RedandBlueSensob(Sensob):
+    camera = Camera()
+    image = None
+    #image = Image.open("redandblue.jpg")
 
     def get_pixel(self,x,y):
         return self.image.getpixel((x,y))
@@ -41,7 +44,7 @@ class RedandBlue_Sensob(Sensob):
                 else:
                     self.put_pixel(x,y)
 
-        #self.image.show()
+                    #self.image.show()
 
     def Array(self):
         self.content = []
@@ -60,7 +63,7 @@ class RedandBlue_Sensob(Sensob):
             else:
                 self.content.append(None)
 
-        #print(self.content)
+                #print(self.content)
 
     def update(self):
         self.image = self.camera.update()
@@ -71,12 +74,13 @@ class RedandBlue_Sensob(Sensob):
     def reset(self):
         self.camera.reset()
 
+    def get_value(self):
+        return self.content
+
 
 class UltrasonicSensob(Sensob):
-
-    def __init__(self):
-        self.ultra = Ultrasonic()
-        self.distance = 0
+    ultra = Ultrasonic()
+    distance = 0
 
     def update(self):
         self.distance = self.ultra.update()
@@ -84,11 +88,13 @@ class UltrasonicSensob(Sensob):
     def reset(self):
         self.ultra.reset()
 
-class IrSensob(Sensob):
+    def get_value(self):
+        return self.distance
 
-    def __init__(self):
-        self.ir = IRProximitySensor()
-        self.is_close = [False, False]
+
+class IrSensob(Sensob):
+    ir = IRProximitySensor()
+    is_close = [False, False]
 
     def update(self):
         self.is_close = self.ir.update()
@@ -100,4 +106,4 @@ class IrSensob(Sensob):
         return self.is_close
 
 
-
+#TODO: Add ReflectanceSensob
