@@ -1,18 +1,22 @@
 import time
 from behaviour import *
-from motob import *
+from motob import Motob
+from RB import *
+from Tester_Ultra import *
+
 
 class Bbcon:
     active_behaviors = set()
+    sensobs = []
+    behaviors = []
 
-    def __init__(self, behaviors, sensobs, motobs, arbitrator):
-        self.behaviors = behaviors
-        self.sensobs = sensobs
-        self.motobs = motobs
-        self.arbitrator = arbitrator
+    def __init__(self):
+        self.motobs = [Motob()]
 
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
+        if behavior.active_flag:
+            self.activate_behavior(behavior)
 
     def add_sensob(self, sensob):
         self.sensobs.append(sensob)
@@ -37,3 +41,19 @@ class Bbcon:
         time.sleep(0.5)
         for s in self.sensobs:
             s.reset()
+
+
+def main():
+    camera = Camera()
+    bbcon = Bbcon()
+    cam_sensob = RedandBLue(camera)
+    ultra_sensob = In_Front()
+    turnToRed = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
+    bbcon.add_behavior(turnToRed)
+    bbcon.add_sensob(cam_sensob)
+    while True:
+        bbcon.run_one_timestep()
+
+
+if __name__ == "__main__":
+    main()

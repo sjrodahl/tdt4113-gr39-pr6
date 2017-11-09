@@ -2,11 +2,11 @@ from PIL import Image
 from camera import Camera
 
 class RedandBLue():
-    
 
-    def __init__(self, camera):
+
+    def __init__(self):
         #self.image = Image.open("redandblue.jpg")
-        self.camera = camera
+        self.camera = Camera()
         self.image = Camera.get_value()
 
     def get_pixel(self,x,y):
@@ -28,7 +28,7 @@ class RedandBLue():
                 else:
                     self.put_pixel(x,y)
 
-        self.image.show()
+        #self.image.show()
 
 
     def Array(self):
@@ -48,14 +48,16 @@ class RedandBLue():
             else:
                 self.content.append(None)
 
-        print(self.content)
-    
+        #print(self.content)
+
     def update(self):
         self.image = self.camera.update()
         self.Converter()
         self.Array()
         return self.content
-    
-Hallvard = RedandBLue()
-Hallvard.Converter()
-Hallvard.Array()
+
+    def reset(self):
+        self.camera.reset()
+
+    def get_value(self):
+        return self.content
