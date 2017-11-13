@@ -1,21 +1,37 @@
 from PIL import Image
 from camera import Camera
+from ultrasonic import Ultrasonic
+from irproximity_sensor import IRProximitySensor
 
-class RedandBLue():
+
+class Sensob():
+
+    def __init__(self, bbcon):
+        self.bbcon = bbcon
+        self.bbcon.add_sensob(self)
 
 
-    def __init__(self):
-        #self.image = Image.open("redandblue.jpg")
-        self.camera = Camera()
-        self.image = Camera.get_value()
+    def update(self):
+        pass
+
+    def reset(self):
+        pass
+
+    def get_value(self):
+        pass
+
+
+class RedandBlueSensob(Sensob):
+    camera = Camera()
+    image = None
+    #image = Image.open("redandblue.jpg")
 
     def get_pixel(self,x,y):
         return self.image.getpixel((x,y))
 
-    def put_pixel(self,x,y,):
+    def put_pixel(self,x,y):
         Black = (0, 0, 0)
         return self.image.putpixel((x,y),Black)
-
 
     def Converter(self):
 
@@ -28,8 +44,7 @@ class RedandBLue():
                 else:
                     self.put_pixel(x,y)
 
-        #self.image.show()
-
+                    #self.image.show()
 
     def Array(self):
         self.content = []
@@ -48,7 +63,7 @@ class RedandBLue():
             else:
                 self.content.append(None)
 
-        #print(self.content)
+                #print(self.content)
 
     def update(self):
         self.image = self.camera.update()
@@ -58,3 +73,37 @@ class RedandBLue():
 
     def reset(self):
         self.camera.reset()
+
+    def get_value(self):
+        return self.content
+
+
+class UltrasonicSensob(Sensob):
+    ultra = Ultrasonic()
+    distance = 0
+
+    def update(self):
+        self.distance = self.ultra.update()
+
+    def reset(self):
+        self.ultra.reset()
+
+    def get_value(self):
+        return self.distance
+
+
+class IrSensob(Sensob):
+    ir = IRProximitySensor()
+    is_close = [False, False]
+
+    def update(self):
+        self.is_close = self.ir.update()
+
+    def reset(self):
+        self.ir.reset()
+
+    def get_value(self):
+        return self.is_close
+
+
+#TODO: Add ReflectanceSensob

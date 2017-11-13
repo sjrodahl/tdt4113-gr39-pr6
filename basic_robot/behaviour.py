@@ -1,4 +1,6 @@
 from enum import Enum
+from sensobs import *
+
 
 class DriveMode(Enum):
     DRIVE = 1
@@ -6,16 +8,14 @@ class DriveMode(Enum):
 
 
 class Behaviour:
-    SPEED = 0.25
     ROTATE_DEGREES = 10
-
 
     motor_recommendations = None
     halt_request = False
     match_degree = 0
     weight = 0      #priority * match_degree
 
-    def __init__(self, bbcon, sensobs, priority, active_flag):
+    def __init__(self, bbcon, sensobs, priority, active_flag = True):
         self.bbcon = bbcon
         self.sensobs = sensobs
         self.priority = priority
@@ -92,7 +92,7 @@ class AvoidWalls(Behaviour):
 
 
 class FollowRedInIntersection(Behaviour):
-    # Sensobs: The camea sensob looking for red and blue to determine direction
+    # Sensobs: The camera sensob looking for red and blue to determine direction
     # and the ulrasound to determine when to activate.
     LEFT = 1
     RIGHT = -1
@@ -101,7 +101,26 @@ class FollowRedInIntersection(Behaviour):
     def determine_direction(self):
         """Return self.LEFT or self.RIGHT based on the camera-sensob value"""
         # TODO: Implement when the format from the sensob is ready
-        return self.LEFT
+        content = self.sensobs[0].content
+        size = len(content)
+        redCount = [0,0]
+        for i in range(size):
+            if i<=size/2:
+                if content[i] == "Red":
+                    redCount[0]+=1
+            if i>size/2:
+                if content[i] == "Red":
+                    redCount[1]+=1
+        if redCount[0]> redCount[1]:
+            return self.LEFT
+        elif redCount[0] < redCount[1]:
+            return self.RIGHT
+        else:
+            #Same amount of red on both sides
+            self.match_degree = 0.1
+            return self.LEFT
+
+
 
     def calculate_match_degree(self):
         ultrasonic_distance = self.sensobs[1].get_value()
@@ -123,7 +142,7 @@ class FollowRedInIntersection(Behaviour):
     def sense_and_act(self):
         self.match_degree = self.calculate_match_degree()
         direction = self.determine_direction()
-        self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES, self.SPEED)
+        self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES)
 
 
 
