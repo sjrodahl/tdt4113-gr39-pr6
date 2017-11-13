@@ -20,6 +20,7 @@ class Behaviour:
         self.sensobs = sensobs
         self.priority = priority
         self.active_flag = active_flag
+        self.bbcon.add_behavior(self)
 
     def consider_deactivation(self):
         """Use the sensobs-values to determine activation. This method should always be overridden"""
@@ -144,6 +145,30 @@ class FollowRedInIntersection(Behaviour):
         direction = self.determine_direction()
         self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES)
 
+
+class follow_line(Behaviour):
+    # self.sensobs is 1 single sensob for for reflectance sensor
+    ROTATION_WEIGHTS = [-20, -15, -10, 10, 15, 20]
+
+    def consider_deactivation(self):
+        self.active_flag = True
+        return False
+
+    def consider_activation(self):
+        self.active_flag = True
+        return True
+
+    def calculate_match_degree(self):
+        if any(self.sensobs[0].get_value()):
+            return 1.0
+        else:
+            return 0.5
+
+    def sense_and_act(self):
+        reflectance_array = self.sensobs[0].get_value()
+        rotations = [self.ROTATION_WEIGHTS[x] for x in range(6) if reflectance_array[x]]
+        rotation = sum(rotations) / len(rotations)
+        self.motor_recommendations = (DriveMode.DRIVE,rotation)
 
 
 
