@@ -13,7 +13,7 @@ class Bbcon:
 
     def __init__(self):
         self.motobs = [Motob()]
-        self.arbitator = Arbitrator()
+        self.arbitrator = Arbitrator(self)
 
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
@@ -49,8 +49,8 @@ class Bbcon:
 
 def main():
     bbcon = Bbcon()
-    cam_sensob = RedandBlueSensob()
-    ultra_sensob = UltrasonicSensob()
+    cam_sensob = RedandBlueSensob(bbcon)
+    ultra_sensob = UltrasonicSensob(bbcon)
     followRedBehavior = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
 
     halt = False
