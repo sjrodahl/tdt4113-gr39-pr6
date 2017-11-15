@@ -1,5 +1,5 @@
 from enum import Enum
-from sensobs import *
+#from sensobs import *
 
 
 class DriveMode(Enum):
@@ -20,6 +20,7 @@ class Behaviour:
         self.sensobs = sensobs
         self.priority = priority
         self.active_flag = active_flag
+        self.bbcon.add_behavior(self)
 
     def consider_deactivation(self):
         """Use the sensobs-values to determine activation. This method should always be overridden"""
@@ -129,15 +130,17 @@ class FollowRedInIntersection(Behaviour):
 
     def consider_deactivation(self):
         ultrasonic_distance = self.sensobs[1].get_value()
+        print(ultrasonic_distance)
         if ultrasonic_distance > 10:  # Less than 10 centimeters away from the wall
             self.active_flag = False
-            return True
+            self.bbcon.deactivate_behavior(self)
     
     def consider_activation(self):
         ultrasonic_distance = self.sensobs[1].get_value()  
+        print(ultrasonic_distance)
         if ultrasonic_distance <= 10:    #Less than 10 centimeters away from the wall
             self.active_flag = True
-            return True
+            self.bbcon.activate_behavior(self)
 
     def sense_and_act(self):
         self.match_degree = self.calculate_match_degree()
@@ -145,6 +148,28 @@ class FollowRedInIntersection(Behaviour):
         self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES)
 
 
+class follow_line(Behaviour):
+    # self.sensobs is 1 single sensob for for reflectance sensor
+    ROTATION_WEIGHTS = [30, 20, 10, -10, -20, -30]
 
+    def consider_deactivation(self):
+        self.active_flag = True
+        return False
 
+    def consider_activation(self):
+        self.active_flag = True
+        return True
 
+    def calculate_match_degree(self):
+        if any(self.sensobs[0].get_value()):
+            return 1.0
+        else:
+            return 0.5
+
+    def sense_and_act(self):
+        reflectance_array = self.sensobs[0].get_value()
+        print(reflectance_array)
+        rotations = [self.ROTATION_WEIGHTS[x] for x in range(6) if reflectance_array[x]]
+        active = len(rotations)
+        rotation = sum(rotations) / active if active else 0
+        self.motor_recommendations = (DriveMode.DRIVE, rotation)

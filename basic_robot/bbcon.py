@@ -1,10 +1,9 @@
 import time
 from behaviour import *
 from motob import Motob
-from sensobs import *
 from arbitrator import Arbitrator
-
-
+from zumo_button import ZumoButton
+import sensobs
 
 class Bbcon:
     active_behaviors = set()
@@ -13,7 +12,8 @@ class Bbcon:
 
     def __init__(self):
         self.motobs = [Motob()]
-        self.arbitator = Arbitrator()
+        self.arbitrator = Arbitrator(self)
+        self.button = ZumoButton()
 
     def add_behavior(self, behavior):
         self.behaviors.append(behavior)
@@ -30,6 +30,10 @@ class Bbcon:
         self.active_behaviors.discard(behavior) #discard removes x if x is present in the set
 
     def run_one_timestep(self):
+        self.button.update()
+        if not self.button.val:
+            self.motobs[0].halt()
+            return 1
         for s in self.sensobs:
             s.update()
         for b in self.active_behaviors:
@@ -41,16 +45,21 @@ class Bbcon:
             return True     # Freeze all motor functions
         for m in self.motobs:
             m.update(mr)
-        time.sleep(0.5)
+        time.sleep(0.2)
         for s in self.sensobs:
             s.reset()
         return False    # Do not halt
 
 
 def main():
+    z = ZumoButton()
+    z.wait_for_press()
+    time.sleep(0.5)
     bbcon = Bbcon()
-    cam_sensob = RedandBlueSensob()
-    ultra_sensob = UltrasonicSensob()
+    cam_sensob = sensobs.RedandBlueSensob(bbcon)
+    ultra_sensob = sensobs.UltrasonicSensob(bbcon)
+    reflector = sensobs.ReflectanceSensob(bbcon)
+    followlineBehaviour = follow_line(bbcon, [reflector], 0.4, True)
     followRedBehavior = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
 
     halt = False

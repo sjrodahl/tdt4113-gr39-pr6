@@ -2,7 +2,7 @@ from PIL import Image
 from camera import Camera
 from ultrasonic import Ultrasonic
 from irproximity_sensor import IRProximitySensor
-
+from reflectance_sensors import ReflectanceSensors
 
 class Sensob():
 
@@ -80,10 +80,11 @@ class RedandBlueSensob(Sensob):
 
 class UltrasonicSensob(Sensob):
     ultra = Ultrasonic()
-    distance = 0
+    distance = 1
 
     def update(self):
-        self.distance = self.ultra.update()
+        self.ultra.update()
+        self.distance = self.ultra.get_value()
 
     def reset(self):
         self.ultra.reset()
@@ -106,4 +107,23 @@ class IrSensob(Sensob):
         return self.is_close
 
 
-#TODO: Add ReflectanceSensob
+class ReflectanceSensob(Sensob):
+
+    reflector = ReflectanceSensors(min_reading=150, max_reading=1800)
+    reflectance_array = [False] * 6
+
+
+    def update(self):
+        self.reflectance_array = self.reflector.update()
+        print(self.reflectance_array)
+        self.find_line()
+
+    def find_line(self):
+        array = [(x<0.5) for x in self.reflectance_array]
+        self.reflectance_array = array
+
+    def reset(self):
+        self.reflectance_array = [False] * 6
+
+    def get_value(self):
+        return self.reflectance_array
