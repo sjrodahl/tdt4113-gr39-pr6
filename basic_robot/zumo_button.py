@@ -7,10 +7,16 @@ class ZumoButton():
         wp.wiringPiSetupGpio()
         wp.pinMode(22, 0)
         wp.pullUpDnControl(22, 2)
+        val = True
 
     def wait_for_press(self):
         read_val = wp.digitalRead(22)
         while read_val:
             read_val = wp.digitalRead(22)
         print("Button pressed!!")
+
+    def update(self):
+        self.val = wp.digitalRead(22)
+
+  
 
