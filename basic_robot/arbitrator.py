@@ -9,6 +9,7 @@ class Arbitrator:
         """Choose behaviour based on their weights"""
         #TODO: Add stochasticity (weighted randomness)
         chosen = max(self.bbcon.active_behaviors)
+        print(str(chosen.motor_recommendations))
         return (chosen.motor_recommendations, chosen.halt_request)
 
     def choose_action_stochastically(self):

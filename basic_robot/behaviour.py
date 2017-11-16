@@ -5,30 +5,35 @@ from enum import Enum
 class DriveMode(Enum):
     DRIVE = 1
     ROTATE = 2
-
+    HALT = 3
 
 class Behaviour:
     ROTATE_DEGREES = 10
 
-    motor_recommendations = None
-    halt_request = False
-    match_degree = 0
-    weight = 0      #priority * match_degree
+    
 
     def __init__(self, bbcon, sensobs, priority, active_flag = True):
-        self.bbcon = bbcon
+        self.motor_recommendations = None
+        self.halt_request = False
+        self.match_degree = 0
+        self.weight = 0      #priority * match_degreeself.bbcon = bbcon
         self.sensobs = sensobs
+        self.bbcon = bbcon
         for s in self.sensobs:
             s.add_behavior(self)
         self.priority = priority
         self.active_flag = active_flag
         self.bbcon.add_behavior(self)
+    
+    def __str__(self):
+        return(str(self.__class__.__name__))
 
     def consider_deactivation(self):
         """Use the sensobs-values to determine activation. This method should always be overridden"""
         pass
 
     def consider_activation(self):
+        print("fuck")
         """Use the sensobs-values to determine deactivation. This method should always be overridden"""
         pass
 
@@ -38,7 +43,11 @@ class Behaviour:
 
     def update(self):
         """Activates/Deactivates the behaviour. Act on the current sensor values and updates the behaviours weight"""
-        self.consider_deactivation() if self.active_flag else self.consider_activation()
+        #self.consider_deactivation() if self.active_flag else self.consider_activation()
+        if self.active_flag:
+            self.consider_deactivation()
+        else:
+            self.consider_activation()
         if self.active_flag:
             self.sense_and_act()
             self.weight = self.match_degree*self.priority
@@ -54,6 +63,17 @@ class Behaviour:
 class AvoidWalls(Behaviour):
     # self.sensobs is i single sensob for for ir-proximity sensor
     last_rotate_was_clockwise = True  # To toggle the turndirection in case of no walls detected
+
+    def update(self):
+        """Activates/Deactivates the behaviour. Act on the current sensor values and updates the behaviours weight"""
+        #self.consider_deactivation() if self.active_flag else self.consider_activation()
+        if self.active_flag:
+            self.consider_deactivation()
+        else:
+            self.consider_activation()
+        if self.active_flag:
+            self.sense_and_act()
+            self.weight = self.match_degree*self.priority
 
     def consider_deactivation(self):
         self.active_flag = True
@@ -100,7 +120,20 @@ class FollowRedInIntersection(Behaviour):
     LEFT = 1
     RIGHT = -1
     ROTATE_DEGREES = 90
+    just_activated = False
 
+    def update(self):
+
+        """Activates/Deactivates the behaviour. Act on the current sensor values and updates the behaviours weight"""
+        #self.consider_deactivation() if self.active_flag else self.consider_activation()
+        if self.active_flag:
+            self.consider_deactivation()
+        else:
+            self.consider_activation()
+        if self.active_flag:
+            self.sense_and_act()
+            self.weight = self.match_degree*self.priority
+    
     def determine_direction(self):
         """Return self.LEFT or self.RIGHT based on the camera-sensob value"""
         # TODO: Implement when the format from the sensob is ready
@@ -142,18 +175,35 @@ class FollowRedInIntersection(Behaviour):
         print(ultrasonic_distance)
         if ultrasonic_distance <= 10:    #Less than 10 centimeters away from the wall
             self.active_flag = True
+            self.just_activated = True
             self.bbcon.activate_behavior(self)
 
     def sense_and_act(self):
-        self.match_degree = self.calculate_match_degree()
-        direction = self.determine_direction()
-        self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES)
+        if self.just_activated:
+            self.motor_recommendations = (DriveMode.HALT, 4)
+            self.match_degree = 1.0
+            self.just_activated = False
+        else:
+            self.match_degree = self.calculate_match_degree()
+            direction = self.determine_direction()
+            self.motor_recommendations = (DriveMode.ROTATE, direction*self.ROTATE_DEGREES)
 
 
 class follow_line(Behaviour):
     # self.sensobs is 1 single sensob for for reflectance sensor
     ROTATION_WEIGHTS = [30, 20, 10, -10, -20, -30]
 
+    def update(self):
+        """Activates/Deactivates the behaviour. Act on the current sensor values and updates the behaviours weight"""
+        #self.consider_deactivation() if self.active_flag else self.consider_activation()
+        if self.active_flag:
+            self.consider_deactivation()
+        else:
+            self.consider_activation()
+        if self.active_flag:
+            self.sense_and_act()
+            self.weight = self.match_degree*self.priority
+    
     def consider_deactivation(self):
         self.active_flag = True
         return False
@@ -170,7 +220,7 @@ class follow_line(Behaviour):
 
     def sense_and_act(self):
         reflectance_array = self.sensobs[0].get_value()
-        print(reflectance_array)
+        #print(reflectance_array)
         rotations = [self.ROTATION_WEIGHTS[x] for x in range(6) if reflectance_array[x]]
         active = len(rotations)
         rotation = sum(rotations) / active if active else 0

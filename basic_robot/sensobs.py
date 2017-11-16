@@ -6,19 +6,26 @@ from reflectance_sensors import ReflectanceSensors
 
 class Sensob():
 
-    behaviors = []
+    
 
     def __init__(self, bbcon):
         self.bbcon = bbcon
         self.bbcon.add_sensob(self)
+        self.behaviors = []
+        #self.update()
 
-    def add_behavior(self.behavior):
+    def add_behavior(self, behavior):
         self.behaviors.append(behavior)
 
     def any_active_behaviors(self):
+        #for b in self.behaviors:
+        #    print(str(b) + str(b.active_flag))
         if len(self.behaviors) == 0:
             return False
-        return any([b.active_flag for b in self.behaviors]):
+        t = [b.active_flag for b in self.behaviors]
+        #print(t)
+        #print(any(t))
+        return any([b.active_flag for b in self.behaviors])
 
     def update(self):
         pass
@@ -35,6 +42,7 @@ class RedandBlueSensob(Sensob):
     image = None
     #image = Image.open("redandblue.jpg")
 
+    content = []
     def get_pixel(self,x,y):
         return self.image.getpixel((x,y))
 
@@ -56,7 +64,6 @@ class RedandBlueSensob(Sensob):
                     #self.image.show()
 
     def Array(self):
-        self.content = []
 
         for x in range(self.image.size[0]):
             temp = [0,0]
@@ -64,7 +71,7 @@ class RedandBlueSensob(Sensob):
                 temp[0] += self.get_pixel(x,y)[0]
                 temp[1] += self.get_pixel(x,y)[2]
 
-            if (temp[0] > 2000) or (temp[1] > 2000):
+            if (temp[0] > 500) or (temp[1] > 500):
                 if(temp[0] > temp[1]):
                     self.content.append("Red")
                 else:
@@ -77,6 +84,7 @@ class RedandBlueSensob(Sensob):
     def update(self):
         if not self.any_active_behaviors():
             return 0
+        print("Camera updated")
         self.image = self.camera.update()
         self.Converter()
         self.Array()
@@ -96,8 +104,12 @@ class UltrasonicSensob(Sensob):
     def update(self):
         if not self.any_active_behaviors():
             return 0
+        print("Ultra updated")
         self.ultra.update()
         self.distance = self.ultra.get_value()
+    
+    def any_active_behaviors(self):
+        return True
 
     def reset(self):
         self.ultra.reset()
@@ -113,6 +125,7 @@ class IrSensob(Sensob):
     def update(self):
         if not self.any_active_behaviors():
             return 0
+        print("IR updated")
         self.is_close = self.ir.update()
 
     def reset(self):
@@ -124,15 +137,16 @@ class IrSensob(Sensob):
 
 class ReflectanceSensob(Sensob):
 
-    reflector = ReflectanceSensors(min_reading=150, max_reading=1800)
+    reflector = ReflectanceSensors(min_reading=150, max_reading=1000, auto_calibrate=False)
     reflectance_array = [False] * 6
 
 
     def update(self):
+        print("reflectance updated")
         if not self.any_active_behaviors():
             return 0
         self.reflectance_array = self.reflector.update()
-        print(self.reflectance_array)
+        #print(self.reflectance_array)
         self.find_line()
 
     def find_line(self):
