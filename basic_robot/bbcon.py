@@ -34,9 +34,15 @@ class Bbcon:
         if not self.button.val:
             self.motobs[0].halt()
             return 1
+
+        for b in self.behaviors:
+            if b.active_flag:
+                b.consider_deactivation()
+            else:
+                b.consider_activation()
         for s in self.sensobs:
             s.update()
-        for b in self.active_behaviors:
+        for b in self.behaviors:
             b.update()
         (mr, halt_req) = self.arbitrator.choose_action()
         if (halt_req):
@@ -45,9 +51,10 @@ class Bbcon:
             return True     # Freeze all motor functions
         for m in self.motobs:
             m.update(mr)
-        time.sleep(0.2)
+        #time.sleep(0.2)
         for s in self.sensobs:
             s.reset()
+        print(self.active_behaviors)
         return False    # Do not halt
 
 
@@ -60,7 +67,7 @@ def main():
     ultra_sensob = sensobs.UltrasonicSensob(bbcon)
     reflector = sensobs.ReflectanceSensob(bbcon)
     followlineBehaviour = follow_line(bbcon, [reflector], 0.4, True)
-    followRedBehavior = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, True)
+    followRedBehavior = FollowRedInIntersection(bbcon, [cam_sensob, ultra_sensob], 1, False)
 
     halt = False
     while not halt:

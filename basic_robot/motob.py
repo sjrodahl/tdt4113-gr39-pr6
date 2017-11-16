@@ -15,6 +15,7 @@ class Motob:
     def update(self, motor_recommendation):  # hi and lo given only for testing purposes
         # MR follows (Mode, rotation_degrees, speed)
         self.value = motor_recommendation
+        print(self.value)
         self.operationalize()
 
     def operationalize(self):
@@ -35,6 +36,8 @@ class Motob:
             self.motor.left()
             duration = self.calculate_duration(mode, rotation_degrees)  # 0.8 and 0.23 works at normal speeds
             self.motor.left(self.SPEED, duration) if rotation_degrees > 0 else self.motor.right(self.SPEED, duration)
+        elif mode == DriveMode.HALT:
+            self.halt()
 
 
     def calculate_duration(self, mode, rotation_degrees):
