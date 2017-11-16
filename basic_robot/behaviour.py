@@ -18,6 +18,8 @@ class Behaviour:
     def __init__(self, bbcon, sensobs, priority, active_flag = True):
         self.bbcon = bbcon
         self.sensobs = sensobs
+        for s in self.sensobs:
+            s.add_behavior(self)
         self.priority = priority
         self.active_flag = active_flag
         self.bbcon.add_behavior(self)
@@ -134,9 +136,9 @@ class FollowRedInIntersection(Behaviour):
         if ultrasonic_distance > 10:  # Less than 10 centimeters away from the wall
             self.active_flag = False
             self.bbcon.deactivate_behavior(self)
-    
+
     def consider_activation(self):
-        ultrasonic_distance = self.sensobs[1].get_value()  
+        ultrasonic_distance = self.sensobs[1].get_value()
         print(ultrasonic_distance)
         if ultrasonic_distance <= 10:    #Less than 10 centimeters away from the wall
             self.active_flag = True

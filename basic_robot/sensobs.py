@@ -6,10 +6,19 @@ from reflectance_sensors import ReflectanceSensors
 
 class Sensob():
 
+    behaviors = []
+
     def __init__(self, bbcon):
         self.bbcon = bbcon
         self.bbcon.add_sensob(self)
 
+    def add_behavior(self.behavior):
+        self.behaviors.append(behavior)
+
+    def any_active_behaviors(self):
+        if len(self.behaviors) == 0:
+            return False
+        return any([b.active_flag for b in self.behaviors]):
 
     def update(self):
         pass
@@ -66,6 +75,8 @@ class RedandBlueSensob(Sensob):
                 #print(self.content)
 
     def update(self):
+        if not self.any_active_behaviors():
+            return 0
         self.image = self.camera.update()
         self.Converter()
         self.Array()
@@ -83,6 +94,8 @@ class UltrasonicSensob(Sensob):
     distance = 1
 
     def update(self):
+        if not self.any_active_behaviors():
+            return 0
         self.ultra.update()
         self.distance = self.ultra.get_value()
 
@@ -98,6 +111,8 @@ class IrSensob(Sensob):
     is_close = [False, False]
 
     def update(self):
+        if not self.any_active_behaviors():
+            return 0
         self.is_close = self.ir.update()
 
     def reset(self):
@@ -114,6 +129,8 @@ class ReflectanceSensob(Sensob):
 
 
     def update(self):
+        if not self.any_active_behaviors():
+            return 0
         self.reflectance_array = self.reflector.update()
         print(self.reflectance_array)
         self.find_line()
